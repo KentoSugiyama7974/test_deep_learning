@@ -17,12 +17,12 @@ test_data = torchvision.datasets.QMNIST(
 train_loader = torch.utils.data.DataLoader(train_data,batch_size=4,shuffle=True)
 test_loader = torch.utils.data.DataLoader(test_data,batch_size=4,shuffle=True)
 
-
 net = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = opt.SGD(net.parameters(),lr=0.001,momentum=0.9)
 
-for epoch in range(10):
+#train
+for epoch in range(1):
     runnning_loss = 0.0
     for i,(inputs,labels) in enumerate(train_loader,0):
         optimizer.zero_grad()
@@ -34,5 +34,19 @@ for epoch in range(10):
 
         runnning_loss += loss.item()
 
-        print(f"epoch:{epoch}, loss:{runnning_loss}")
-        runnning_loss = 0.0
+        if i%100 == 99:
+            print(f"epoch:{epoch},{i} loss:{runnning_loss}")
+            runnning_loss = 0.0
+
+#test
+correct = 0
+total = 0
+
+with torch.no_grad():
+    for (images,labels) in test_loader:
+        outputs = net(images)
+        _,predicted = torch.max(outputs.data,1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+print(f"accuracy:{float(correct/total)}")
